@@ -1,0 +1,8 @@
+venv
+model.py
+__pycache__
+Testes
+image
+ssid-key
+export_ssids_key_all.bat
+logExecution.txt
