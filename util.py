@@ -164,6 +164,24 @@ class functions:
 
         return url
 
+class Decorator:
+    
+    def exibeNomeFuncao(func):
+            def warpper():
+                print(f'Funcao: <{func.__name__}>')
+            return warpper   
+
+    def tFunction(func):
+            def warpper():
+                try:
+                    func()
+                    print(f'Funcao: <{func.__name__}>: passed')
+                except Exception as e:
+                    print(f'Funcao: <{func.__name__}>: faild')
+
+            return warpper
+    
+
 if __name__ == '__main__':
     functions.LimparConsole()
     fn  = functions
