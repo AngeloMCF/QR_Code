@@ -22,10 +22,10 @@ import qrcode
 from PIL import Image
 from xml.dom import minidom 
 
+from config import save_path
 from util import functions as fn, Validar
+from dados import Dados, Messages
 
-
-save_path :str = './image/'
 
 def CreateExpotKey (dir_files : list = os.listdir(),
                     save_path: str = os.getcwd(),
@@ -60,7 +60,6 @@ def CreateExpotKey (dir_files : list = os.listdir(),
 
 def ExecuteExportBat() -> bool:
     chk_dir = CreateExpotKey()
-
 
     if (chk_dir.get('validation') and chk_dir.get('fileName') != None):
         os.system(chk_dir.get('fileName'))
@@ -100,87 +99,6 @@ def ExecuteExportBat() -> bool:
     return False
 
 
-def RecebeDadosURL() -> dict[str, str, str, str, str, str]:
-    url :str =''
-    fileName :str = 'QRCODE_'
-    fileExtension :str = '.png'
-    savepath :str = save_path
-
-    msg :str = 'Digite a url: '
-    url = input(msg)
-    fileName += fn.ReplaceURL(url)
-    changeFileName :str = input(f'Deseja renomear o arquivo final ({fileName}{fileExtension}) [S/N]: ')
-    if (changeFileName[0].lower() == 's'):
-        fileName = input('Digite o nome do arquivo com extensao: ')
-        fileExtension = fileName[fileName.find('.')::]
-        fileName = fileName.replace(fileExtension, '')
-
-    _send :dict = {
-        'url' : url,
-        'fileName' : fileName,
-        'fileExtension' : fileExtension,
-        'savepath' : savepath
-    }
-
-    return _send
-
-def RecebeDadosWIFI() -> dict[str, str, str, str, str, str]:
-    ssid :str = ''
-    key :str = ''
-    type_s :str = ''
-    hidden :str = 'False'
-    fileName :str = 'QRCode_WI-FI-'
-    fileExtension :str = '.png'
-    savePath :str = save_path
-
-    listaTiposSeguranca :list= [
-        '    [1] (WPA) Wi-Fi Protected Access (Padrao)',
-        '    [2] (WEP) Wired Equivalent Privacy',
-        '    [3] (WPA 2) Wi-Fi Protected Access 2',
-        '    [4] (WPA 3) Wi-Fi Protected Access 3',
-    ]
-
-    TipoSegurancaValoresAceitos :list = [str(i).strip()[1] for i in listaTiposSeguranca]
-    VarloTiposSeguranca :dict[str, str]= {}
-
-    for i in listaTiposSeguranca:
-        i  = str(i).strip().replace(" ", '')
-        VarloTiposSeguranca[i[1]] = i[i.index('(') +1: i.index(')')]
-
-
-    msgs :dict = {
-        'ssid' :  'Digite o nome da rede (SSID): ',
-        'key' :  'Digite o senha da rede (Key/Password): ',
-        'type_s' : f'Tipos de seguraca disponiveis: {fn.Listar(listaTiposSeguranca)} \nDigite o tipo de seguranca: ' 
-    }
-
-    ssid  = input(msgs.get('ssid'))
-    key  = input(msgs.get('key'))
-    i_type_s  = input(msgs.get('type_s'))
-
-    try:
-        type_s = VarloTiposSeguranca.get(i_type_s) if(i_type_s in TipoSegurancaValoresAceitos) else VarloTiposSeguranca.get('1')
-    except:
-        type_s = VarloTiposSeguranca.get('1')
-
-
-    msg_validar :str =  f'Deseja renomear o arquivo final ({fileName + ssid + fileExtension}) [S/N]: '
-    if (Validar.SimNao(message= msg_validar, loop=True).get('Validation')):
-        file :dict= fn.RenomearArquivoFinal(fileName= fileName, fileExtension= fileExtension)
-        fileName = file.get('fileName')
-        fileExtension = file.get('fileExtension')
-
-    data :dict = {
-        'ssid' :ssid,
-        'key' : key ,
-        'type_s' : type_s, 
-        'hidden' : hidden ,
-        'fileName' :fileName, 
-        'fileExtension' : fileExtension,
-        'savePath' : savePath
-    }
-    return data
-
 def MakeURLCode (url :str, fileName :str='QRCode_', fileExtension :str = '.png', savePath :str = save_path, tipo :int= 0) -> None:
     img = qrcode.make(url)
     composedPath :str = ''
@@ -218,10 +136,12 @@ def ListarDisponiveis()-> None:
 
 def SetUP()-> None:
     fn.LimparConsole()
+    print(Messages.mInicioExecucao())
+
     if('image') not in os.listdir():
         os.mkdir('image')
 
-def __init__() -> None:
+def run() -> None:
     SetUP()
     opcoes : list= [
         '[0] - Cancelar',
@@ -238,25 +158,29 @@ def __init__() -> None:
     try:
         choice =int(input(msg))
         if choice == 0:
-            print('Encerrando Execucao..')
+            print(Messages.mFimExecucao())
         
         if choice == 1: #URL
-            recebido = RecebeDadosURL()
-            MakeURLCode(url=recebido.get('url'), fileName=recebido.get('fileName'))
+            data = Dados.Url()
+            recebido = data.EntradaDados()
+            MakeURLCode(url=recebido.url, fileName=recebido.fileName)
 
         if choice == 2: #WI-FI
-            recebido = RecebeDadosWIFI()
-            MakeWIFICode(ssid=recebido.get('ssid'),key=recebido.get('key'), type_s=recebido.get('type_s'), fileName=recebido.get('fileName'),fileExtension=recebido.get('fileExtension'))
+            data = Dados.Wifi()
+            recebido = data.EntradaDados()
+            MakeWIFICode(ssid=recebido.ssid,key=recebido.key, type_s=recebido.type_s, fileName=recebido.fileName,fileExtension=recebido.fileExtension)
 
         if choice == 3: #WI-FI EXPORT
             # recebido = RecebeDadosURL()
             ExecuteExportBat()
 
     except Exception as e:
-        print('Erro...')
+        print(Messages.mErroGenerico())
 
         with open('logExecution.txt', 'w') as file:
             file.write(f'Erro durante a execucao: {choice};\n excecao: {e}')
+        
+        print(Messages.mFimExecucao())
         
 class Teste :
     def TesteCreateExpotKey():
@@ -271,13 +195,6 @@ class Teste :
     def TeteReplaceURL():
         fn.ReplaceURL('www.google.com')
 
-    def TesteRecebeDadosURL():
-        RecebeDadosURL()
-
-    def TesteRecebeDadosWIFI():
-        RecebeDadosWIFI()
-
-
 if __name__ == '__main__':
-    __init__()
+    run()
     
