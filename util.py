@@ -1,4 +1,6 @@
 import os
+from PIL import Image
+# from dados import Messages
 
 class Validar:
 
@@ -104,6 +106,7 @@ class functions:
 
     def LimparConsole() -> None: os.system('cls')
 
+
     def Listar(lista :list) -> str:
         message :str = ''
 
@@ -111,6 +114,7 @@ class functions:
             message += '\n' + i
 
         return message
+
 
     def RenomearArquivoFinal(fileName :str,fileExtension :str, message :str ='Digite o nome do arquivo com extensao: ') -> dict[str, str]:
         originalName :str = fileName + fileExtension
@@ -163,32 +167,67 @@ class functions:
         url = url.replace('.', '_').replace(' ', '_')
 
         return url
+    
+    
+    def ShowImage(path :str )-> None:
+        img = Image.open(path)
+        img.show()
+
+
+    def ListarDisponiveis()-> None:
+        dir
 
 class Decorator:
     
     def exibeNomeFuncao(func):
-            def warpper():
-                print(f'Funcao: <{func.__name__}>')
-            return warpper   
+        def warpper():
+            print(f'Funcao: <{func.__name__}>')
+        return warpper   
+
 
     def tFunction(func):
-            def warpper():
-                try:
-                    func()
-                    print(f'Funcao: <{func.__name__}>: passed')
-                except Exception as e:
-                    print(f'Funcao: <{func.__name__}>: faild')
+        def warpper():
+            try:
+                func()
+                print(f'Funcao: <{func.__name__}>: passed')
+            except Exception as e:
+                print(f'Funcao: <{func.__name__}>: faild')
 
-            return warpper
+        return warpper
     
 
-if __name__ == '__main__':
-    functions.LimparConsole()
-    fn  = functions
+    # def exibeInicioFim(func):
+    #     def warpper():
+    #         print(Messages.mInicioExecucao())
+    #         func()
+    #         print(Messages.mFimExecucao())
 
-    # print(fn.ReplaceURL('youube.com', show_replacede_values=True))
-    a = fn.ReplaceURL('youube.com')
-    print(a)
+    #     return warpper   
+    
+class Logs:
+    def log_to_file(message:str ,filename: str = 'logExecution.txt') -> None: 
+        with open('logExecution.txt', 'w') as file:
+                file.write(message)
+
+class Teste :
+
+    @Decorator.tFunction
+    def tFuntionsistar():
+        functions.Listar([''])
+
+    @Decorator.tFunction
+    def tfunctionsReplaceURL():
+        functions.ReplaceURL('www.google.com')
+
+    def run():
+        functions.LimparConsole()
+        Teste.tFuntionsistar()
+        Teste.tfunctionsReplaceURL()
+
+
+if __name__ == '__main__':
+    Teste.run()
+
     # file = functions.RenomearArquivoFinal(fileName= 'teste',fileExtension ='.png')
     # print(file)
     # Validar.Teste.Message(usedfunction=Validar.SimNao)
@@ -196,4 +235,4 @@ if __name__ == '__main__':
     # Validar.Teste.TesteNumeroInteiro()
     # print(Validar.SimNao(loop = True))
     # Validar.NumeroInteiro(loop = True)
-    print('End...')
+    # print('End...')

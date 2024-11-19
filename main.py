@@ -18,14 +18,14 @@
 
 import os
 import os.path
-import qrcode
 from PIL import Image
 from xml.dom import minidom 
 
 from config import save_path
-from util import functions as fn, Validar
-from dados import Dados, Messages
-
+from util import functions as fn, Validar, Logs
+from dados import Dados
+from mensagens import Messages
+from makeqrcode import QR_Code
 
 def CreateExpotKey (dir_files : list = os.listdir(),
                     save_path: str = os.getcwd(),
@@ -67,7 +67,7 @@ def ExecuteExportBat() -> bool:
         wifi_files : list = os.listdir(chk_dir.get('dir_export'))
 
         if wifi_files:
-            print('Rede encontradas: ' + fn.Listar(wifi_files))
+            print('Redes encontradas: ' + fn.Listar(wifi_files))
             if(Validar.SimNao(message="Deseja gerar QRCode das redes encontradas: [S/N]: ", loop=True).get('Validation')):
                 for i in wifi_files :
                     with open(chk_dir.get('dir_export')+'/' + i, 'r' ) as f:
@@ -76,20 +76,15 @@ def ExecuteExportBat() -> bool:
                         security_type = xml.getElementsByTagName('authentication')
                         password = xml.getElementsByTagName('keyMaterial')
 
-                        data :dict = {
-                            'ssid' : ssid[0].firstChild.data,
-                            'password': password[0].firstChild.data,
-                            'security_type': security_type[0].firstChild.data.replace('PSK', ''),
-                            'fileName':'',
-                            'fileExtension':'.png'                    
-                        }
-                        
+                        _data: object = Dados.Wifi()
+                        _data.ssid = ssid[0].firstChild.data,
+                        _data.key = password[0].firstChild.data,
+                        _data.type_s = security_type[0].firstChild.data.replace('PSK', ''),
+                        _data.fileName = _data.ssid
+                        _data.update_composedPath()
+                       
                         try:
-                            MakeWIFICode(
-                                ssid=data.get('ssid'),
-                                key=data.get('password'), 
-                                type_s=data.get('security_type'), 
-                                )
+                            QR_Code.url(_data)
                         except Exception as e:
                             print(e)
 
@@ -99,48 +94,13 @@ def ExecuteExportBat() -> bool:
     return False
 
 
-def MakeURLCode (url :str, fileName :str='QRCode_', fileExtension :str = '.png', savePath :str = save_path, tipo :int= 0) -> None:
-    img = qrcode.make(url)
-    composedPath :str = ''
-
-    if(tipo == 1 ): #WI-FI
-        composedPath = fileName
-    else: 
-        composedPath = save_path + fileName.replace(' ', '_') + fileExtension
-
-    img.save(composedPath)
-    print(f'URL Gerada: {url}')
-    print(f'Arquivo salvo em: {composedPath}')
-    ShowImage(composedPath)
-
-def MakeWIFICode( ssid :str, key :str, type_s :str,
-                 hidden :str = 'false',
-                 fileName :str='QRCODE_WI-FI_',
-                 fileExtension :str='.png',
-                 savePath :str = save_path) -> None: 
-    
-    hidden = hidden.lower()
-
-    composedPath :str= savePath + (fileName + ssid).replace(' ', '_') + fileExtension
-
-    wifi_url :str = f'WIFI:S:{ssid};T:{type_s};P:{key};H:{hidden};'
-
-    MakeURLCode(url =wifi_url, fileName= composedPath, tipo=1)
-
-def ShowImage(path :str )-> None:
-    img = Image.open(path)
-    img.show()
-
-def ListarDisponiveis()-> None:
-    dir
-
 def SetUP()-> None:
     fn.LimparConsole()
-    print(Messages.mInicioExecucao())
 
     if('image') not in os.listdir():
         os.mkdir('image')
 
+# @Decorator.exibeInicioFim ## TARTAR import circular
 def run() -> None:
     SetUP()
     opcoes : list= [
@@ -163,12 +123,14 @@ def run() -> None:
         if choice == 1: #URL
             data = Dados.Url()
             recebido = data.EntradaDados()
-            MakeURLCode(url=recebido.url, fileName=recebido.fileName)
+            img = QR_Code.url(recebido)
+            QR_Code.Show(img)
 
         if choice == 2: #WI-FI
             data = Dados.Wifi()
             recebido = data.EntradaDados()
-            MakeWIFICode(ssid=recebido.ssid,key=recebido.key, type_s=recebido.type_s, fileName=recebido.fileName,fileExtension=recebido.fileExtension)
+            img = QR_Code.url(recebido)
+            QR_Code.Show(img)
 
         if choice == 3: #WI-FI EXPORT
             # recebido = RecebeDadosURL()
@@ -177,10 +139,9 @@ def run() -> None:
     except Exception as e:
         print(Messages.mErroGenerico())
 
-        with open('logExecution.txt', 'w') as file:
-            file.write(f'Erro durante a execucao: {choice};\n excecao: {e}')
-        
-        print(Messages.mFimExecucao())
+        _m: str = f'Erro durante a execucao: {choice};\n excecao: {e}'
+        Logs.log_to_file(_m)
+
         
 class Teste :
     def TesteCreateExpotKey():
@@ -189,11 +150,6 @@ class Teste :
     def TesteExectuteExportBat():
         ExecuteExportBat()
 
-    def TesteListar():
-        fn.Listar([''])
-
-    def TeteReplaceURL():
-        fn.ReplaceURL('www.google.com')
 
 if __name__ == '__main__':
     run()

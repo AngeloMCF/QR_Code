@@ -1,0 +1,78 @@
+import qrcode
+
+from config import save_path
+from util import functions as fn, Validar, Logs, Decorator
+from dados import Dados, DefaultArquivo
+
+class QR_Code: 
+
+    def Show(data : DefaultArquivo) -> None:
+        try:
+            fn.ShowImage(data.composedPath)
+        except Exception as e: 
+            m: str = f'Erro durante a execução de {QR_Code.Show.__name__}'
+            Logs.log_to_file(m)
+
+
+    def url( data: DefaultArquivo ) -> object:
+
+        data.status = False
+        data.update_composedPath()
+        try:
+            img = qrcode.make(data.url)        
+            img.save(data.composedPath)
+            data.status = True
+            print(f'URL Gerada: {data.url}')
+            print(f'Arquivo salvo em: {data.composedPath}')
+
+        except Exception as e:
+            m: str = f'Erro durante a execução de {QR_Code.url.__name__}'
+            Logs.log_to_file(m)
+        
+        return data
+
+
+class Teste:
+    
+    @Decorator.tFunction
+    def tQR_CodeUrl():
+        data = Dados.Url()
+        data.url = 'teste.com'
+        t = QR_Code
+        t1 = t.url(data)
+
+        if (not t1.status): raise
+
+        data.fileName = 'teste'
+        t2 = t.url(data)
+        if (not t2.status): raise
+
+    @Decorator.tFunction
+    def tQR_CodeShow():
+        data = Dados.Url()
+        data.url = 'teste1.com'
+        data.fileName = 'teste1'
+        QR_Code.url(data)
+
+        QR_Code.Show(data)
+
+    @Decorator.tFunction
+    def tQr_Codewifi():
+        data = Dados.Wifi()
+        data.ssid = 'nomeRede'
+        data.key = 'senha'
+        data.fileName = 'QRODE-' + data.ssid
+        data.type_s =  data.TiposSeguranca().getValorTiposSeguranca().get('1') 
+        QR_Code.url(data)
+    
+    def run():
+        fn.LimparConsole()
+        Teste.tQR_CodeUrl()   
+        Teste.tQR_CodeShow()   
+
+        # Teste.tQr_Codewifi()     
+
+if __name__ == '__main__':
+
+    Teste.run()
+   
