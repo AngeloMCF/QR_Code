@@ -2,7 +2,7 @@
 class Messages:
     ''' Classe de Mensagens gerais da Dados'''
 
-    def mInicioExecucao() -> str: return 'Encerrando Execucao..'
+    def mInicioExecucao() -> str: return 'Iniciando Execucao..'
     def mFimExecucao() -> str: return 'Encerrando Execucao..'
     def mErroGenerico() -> str: return 'Erro...'
 
