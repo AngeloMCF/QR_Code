@@ -14,7 +14,7 @@ class QR_Code:
             Logs.log_to_file(m)
 
 
-    def url( data: DefaultArquivo ) -> object:
+    def url( data: DefaultArquivo, show_info: bool = True) -> object:
 
         data.status = False
         data.update_composedPath()
@@ -22,8 +22,9 @@ class QR_Code:
             img = qrcode.make(data.url)        
             img.save(data.composedPath)
             data.status = True
-            print(f'URL Gerada: {data.url}')
-            print(f'Arquivo salvo em: {data.composedPath}')
+            if show_info:
+                print(f'URL Gerada: {data.url}')
+                print(f'Arquivo salvo em: {data.composedPath}')
 
         except Exception as e:
             m: str = f'Erro durante a execução de {QR_Code.url.__name__}'
