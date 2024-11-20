@@ -79,6 +79,25 @@ class Dados:
 
             self.update_composedPath()
 
+        def tratar_dados_tupla_wifi(self) -> None:
+
+            if (type(self.ssid) == tuple):
+                self.ssid = self.ssid[0]
+
+            if (type(self.key) == tuple):
+                self.key = self.key[0]
+           
+            if (type(self.type_s) == tuple):
+                self.type_s = self.type_s[0]
+
+            if (type(self.hidden) == tuple):
+                self.hidden = self.hidden[0]
+
+        def update_url(self) -> None:
+            self.tratar_dados_tupla_wifi()
+            self.update_composedPath()
+            self.url = f'WIFI:S:{self.ssid};T:{self.type_s};P:{self.key};H:{self.hidden.lower()};'
+
         class TiposSeguranca(object):
             
             def getTiposSeguranca(self) -> list [str, str]:
@@ -105,8 +124,8 @@ class Dados:
             
             def getTipoSegurancaValoresAceitos(self) -> list[str, str]:
                 return [str(i).strip()[1] for i in self.getTiposSeguranca()]
-
-
+            
+            
         def EntradaDados(self, userInput = True) :
 
             if userInput:            
@@ -131,7 +150,8 @@ class Dados:
                 except:
                     self.type_s = _d_ValorTiposSeguranca.get('1')
 
-            self.url = f'WIFI:S:{self.ssid};T:{self.type_s};P:{self.key};H:{self.hidden.lower()};'
+            self.update_url()
+
             self.update_composedPath()
 
             return self
