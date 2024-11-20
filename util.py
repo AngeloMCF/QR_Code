@@ -107,11 +107,15 @@ class functions:
     def LimparConsole() -> None: os.system('cls')
 
 
-    def Listar(lista :list) -> str:
+    def cria_diretorio(dir_name: str) -> None:
+        os.mkdir(dir_name)
+
+
+    def Listar(lista :list, sep = '\n') -> str:
         message :str = ''
 
         for i in lista:
-            message += '\n' + i
+            message += sep + i
 
         return message
 
@@ -227,12 +231,3 @@ class Teste :
 
 if __name__ == '__main__':
     Teste.run()
-
-    # file = functions.RenomearArquivoFinal(fileName= 'teste',fileExtension ='.png')
-    # print(file)
-    # Validar.Teste.Message(usedfunction=Validar.SimNao)
-    # Validar.Teste.TesteSimNao()
-    # Validar.Teste.TesteNumeroInteiro()
-    # print(Validar.SimNao(loop = True))
-    # Validar.NumeroInteiro(loop = True)
-    # print('End...')
