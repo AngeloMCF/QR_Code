@@ -1,5 +1,5 @@
 # from config import save_path
-from util import functions as fn, Decorator
+from util import functions as fn, Decorator, Validar as valida
 from mensagens import Messages
 
 class DefaultArquivo:
@@ -13,7 +13,7 @@ class DefaultArquivo:
         self.fileName= fileName
         self.fileExtension= fileExtension
         self.savepath= savepath
-        self.composedPath = str(savepath + fileName +'.' + fileExtension)
+        self.composedPath = str(savepath + fileName + '.' + fileExtension)
 
     def tratar_dados_tupla(self) -> None:
 
@@ -25,23 +25,30 @@ class DefaultArquivo:
 
     def update_composedPath(self) -> None:
         self.tratar_dados_tupla()
-        self.composedPath = str(self.savepath + self.fileName + '.' + self.fileExtension)
+        self.composedPath = str(self.savepath + self.fileName + '.' + self.fileExtension.replace('.', ''))
 
-class Dados:
-
-    def changeFileName(_fileName: str, _fileExtension: str, userInput = True) -> tuple[str, str]:
+    def change_file_name(self, file_name: str, user_input = True) -> None:
         '''Troca o nome do arquivo de destino
-
-        return fileName, fileExtension
         '''
         
-        if userInput: _fileName = input(Messages.mEntradaFileName()) 
+        if user_input: 
+            accepeted_values :list = ['.png', '.jpg']
+            while True :
+                file_name = input(Messages.mEntradaFileName())
+                a = file_name[-4::]
+                if a in accepeted_values:
+                    break
+                print('Extensao invalida.')
+                print('Extensoes Aceitas : ''.png'', ''.jpg.')
 
-        _fileExtension = _fileName[_fileName.find('.')::]
-        _fileName = _fileName.replace(_fileExtension, '')
+        self.fileExtension = file_name[file_name.find('.')::]
+        self.fileName = file_name.replace(self.fileExtension, '')
 
-        return _fileName, _fileExtension
-        
+        self.update_composedPath()
+
+
+
+class Dados:       
 
     class Url(DefaultArquivo):
         def __init__(self, url: str = '', fileName: str = 'QRCode-', fileExtension: str = 'png', savepath: str = './image/'):
@@ -53,11 +60,10 @@ class Dados:
             if userInput:
                 self.url = input(Messages.mEntradaUrl())
                 self.fileName = fn.ReplaceURL(self.url)
-                self.changeFileName :str = input( Messages.mEchangeFileName(self.fileName,self.fileExtension)) if userInput else 'n'
 
-                if (self.changeFileName[0].lower() == 's'):
-                    self.fileName, self.fileExtension = Dados.changeFileName(userInput =userInput)
-            
+                if (valida.SimNao(message=Messages.mEchangeFileName(self.fileName,self.fileExtension), loop=True)):
+                    self.change_file_name(self.fileName)
+
             self.update_composedPath()
 
             return self
@@ -131,16 +137,14 @@ class Dados:
             if userInput:            
                 self.ssid = input(Messages.mEntradaSSID())
                 self.key = input(Messages.mEntradakey())
-                # self.hidden = input(Messages.mEntradaHidden())
+                self.hidden = str(valida.SimNao(Messages.mEntradaHidden(), True))
                 _TiposSeguranca:object = self.TiposSeguranca() 
                 i_type_s = input(_TiposSeguranca.formataMeensagemTipoSeguranca())
 
                 self.fileName += self.ssid
 
-                _changeFileName :str = input( Messages.mEchangeFileName(self.fileName,self.fileExtension))
-
-                if (_changeFileName[0].lower() == 's'):
-                    self.fileName, self.fileExtension = Dados.changeFileName(userInput = userInput)
+                if (valida.SimNao(message=Messages.mEchangeFileName(self.fileName,self.fileExtension), loop=True)):
+                    self.change_file_name(self.fileName)
 
                 _listaTipoSegurancaValoresAceitos: list =  _TiposSeguranca.getTipoSegurancaValoresAceitos() 
                 _d_ValorTiposSeguranca: dict = _TiposSeguranca.getValorTiposSeguranca() 
@@ -167,11 +171,11 @@ class Testes:
             _data1 = Dados.Url()
 
         @Decorator.tFunction
-        def tchangeFileName():
+        def tchange_file_name():
             _f = Dados.Url
             _old = _f()
             _new = _f()
-            _new.fileName, _new.fileExtension = Dados.changeFileName('NomeArquivoNome.jpg', 'png', False)
+            _new.change_file_name('NomeArquivoNome.jpg', False)
             if _old.fileName == _new.fileName: raise 
 
         @Decorator.tFunction
@@ -184,7 +188,7 @@ class Testes:
         def run():
             '''Executa todos os teste da classe'''
             Testes.tDadosURL.tUrl()
-            Testes.tDadosURL.tchangeFileName()
+            Testes.tDadosURL.tchange_file_name()
             Testes.tDadosURL.tEntradaDadosURL()
 
     class tDadosWifi:
@@ -218,5 +222,4 @@ class Testes:
 
 if __name__ == '__main__':
     fn.LimparConsole()
-
     Testes.run()
