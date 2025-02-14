@@ -4,42 +4,30 @@ from PIL import Image
 
 class Validar:
 
-    def SimNao(char:str ='',  message :str ='Digite [S/N]: ', loop :bool = False) -> dict[bool, str]:
+    def SimNao(message :str ='Digite [S/N]: ', loop :bool = False) -> bool:
         '''
-        :params
-        :loop:True/False, ativar loop de validacao
-        '''
-        data :dict = {
-            'Validation' : False,
-            'char' : char
-        }
+        :params:
+            :message: Usa a default caso não seja passado.
 
-        if (not char):
-            char = input(message)
-        
-        data['char'] = char.strip()[0].lower() if char else ''
-        # data['Validation']  =  True if(data['char'] in['s', 'n', 'y']) else False
-        # data['Validation']  =  True if(data['char'] in['s', 'n', 'y']) else False
-        if(data['char'] in['s', 'n', 'y']):
-            if(data['char'] in['s','y']):
-                data['Validation']  =  True 
-            else: data['Validation']  =  False 
+            :loop: True/False, ativar loop de validacao
+
+            :acepted_values: ['s', '1', 'y', 'n', '0']
             
-            return data
+            :retrun:  bool
+        '''
+        _char = input(message).strip()[0].lower()
 
-        if (loop and not data['Validation']) :
-            while not data['Validation']:
-                print(f'Valor invalido: "{char}"')
-                char = input(message)
-                data['char'] = char.strip()[0].lower() if char else ''
-                if(data['char'] in['s', 'n', 'y']):
-                    if(data['char'] in['s','y']):
-                        data['Validation']  =  True 
-                    else: data['Validation']  =  False 
-                    
-                    break
+        _acepted_values:list = ['s', '1', 'y', 'n', '0']
+        
+        if(_char in _acepted_values):
+            return _char in _acepted_values[0:3] 
 
-        return data
+        if (loop) :
+            while True:
+                print(f'Valor invalido: "{_char}"')
+                _char = input(message).strip()[0].lower()
+                if(_char in _acepted_values):
+                    return _char in _acepted_values[0:3]
 
     def NumeroInteiro(char:str =''.replace(',', "."), message :str ='Digite o numero: ',  loop :bool = False) -> dict[bool, str]:
         '''
@@ -90,17 +78,7 @@ class Validar:
             faild :str = 'FAILD'
 
             print(f'TEST "{usedfunction.__name__}": {passed if status else faild}')
-        
-        # def TesteSimNao():
-        #     Validar.Teste.Message(usedfunction=Validar.SimNao) if(Validar.SimNao('s')['Validation']and Validar.SimNao('n')['Validation']) else Validar.Teste.Message(usedfunction=Validar.SimNao, status=False)
 
-        # def TesteNumeroInteiro():
-        #     Validar.Teste.Message(Validar.SimNao) if(
-        #         Validar.NumeroInteiro(1)['Validation']
-        #         and Validar.NumeroInteiro(2)['Validation'] 
-        #         and Validar.NumeroInteiro(-1)['Validation']
-        #         and not Validar.NumeroInteiro('-1.001')['Validation']
-        #     ) else Validar.Teste.Message(usedfunction= Validar.SimNao, status=False) 
 
 class functions:
 
@@ -198,20 +176,11 @@ class Decorator:
                 print(f'Funcao: <{func.__name__}>: faild')
 
         return warpper
-    
-
-    # def exibeInicioFim(func):
-    #     def warpper():
-    #         print(Messages.mInicioExecucao())
-    #         func()
-    #         print(Messages.mFimExecucao())
-
-    #     return warpper   
-    
+        
 class Logs:
     def log_to_file(message:str ,filename: str = 'logExecution.txt') -> None: 
-        with open('logExecution.txt', 'w') as file:
-                file.write(message)
+        with open('logExecution.txt', 'a+') as file:
+            file.write(message)
 
 class Teste :
 
@@ -230,4 +199,6 @@ class Teste :
 
 
 if __name__ == '__main__':
-    Teste.run()
+    # Teste.run()
+    functions.LimparConsole()
+    Validar.SimNao(loop=True)

@@ -21,6 +21,9 @@ class ExportWIFI():
         self.file_name = file_name
         self.dir_export = dir_export
 
+        if(self.dir_export not in self.dir_files):
+            os.mkdir(self.dir_export)
+
 
     def create_script_bat(self) -> dict[str, str, str, str]:
         script :str = f'@echo off \nnetsh wlan export profile key=clear folder={self.save_path}\{self.dir_export} > {self.save_path}\{self.dir_export}\_remove.txt'
@@ -29,10 +32,6 @@ class ExportWIFI():
             return True
 
         try:
-            if(self.dir_export not in self.dir_files):
-                os.mkdir(self.dir_export)
-                # print(f'Criado "{dir_export}"')
-
             with open (self.file_name, 'w', encoding='utf-8') as file:
                 file.write(script)
 
@@ -90,17 +89,17 @@ class ExportWIFI():
 
     def export_wifi(self, user_input :bool = True) -> None:
         
-        wifi_files : list = os.listdir(self.dir_export)
-        if len(wifi_files) <= 0: 
-            self.executeExportBat()
-            wifi_files = os.listdir(self.dir_export)
+        self.executeExportBat()
+        wifi_files : list = os.listdir(self.dir_export) if os.path.exists(self.dir_export) else []
 
-        if len(wifi_files) <= 0: return
-        
+        if len(wifi_files) <= 0: 
+            print('Nenhuma rede Wifi encontrada.')
+            return
+
         if user_input :
             _wifi_files = [str(i).replace('Wi-Fi-', '').replace('.xml','') for i in wifi_files ]
             print('Redes encontradas: ' + fn.Listar(_wifi_files, sep = '\n\t'))
-            if(Validar.SimNao(message="Deseja gerar QRCode das redes encontradas: [S/N]: ", loop=True).get('Validation')):
+            if(Validar.SimNao(message="Deseja gerar QRCode das redes encontradas: [S/N]: ", loop=True)):
                 self.create_qrcode_export_wifi(wifi_files)
             
 
@@ -133,7 +132,6 @@ class Testes():
 
 
 if __name__ == '__main__':
-    # ExportWIFI().create_script_bat()
     if('image') not in os.listdir(): os.mkdir('image')
 
     Testes.run()

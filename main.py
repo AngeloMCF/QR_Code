@@ -35,7 +35,6 @@ def SetUP()-> None:
     if('image') not in os.listdir():
         os.mkdir('image')
 
-# @Decorator.exibeInicioFim ## TARTAR import circular
 def run() -> None:
     SetUP()
     print(Messages.mInicioExecucao())
@@ -45,37 +44,51 @@ def run() -> None:
         '[2] - QRCODE de WI-FI',
         '[3] - Exportar todas as redes WIFI',
         # '[4] - INFO'
-
     ]
-    msg :str ='Opcoes disponiveis: ' + fn.Listar(opcoes, sep='\n\t') + '\nDigite uma das opcoes: '
 
-    choice :int= -1
+    msg :str = 'Opcoes disponiveis: ' + fn.Listar(opcoes, sep='\n\t') + '\nDigite uma das opcoes: '
+    lista_valida:list = [int(str(i).strip()[1]) for i in opcoes]
+    choice :int 
 
-    try:
-        choice =int(input(msg))
-        if choice == 0:
-            print(Messages.mFimExecucao())
-        
-        if choice == 1: #URL
-            data = Dados.Url()
-            recebido = data.EntradaDados()
-            img = QR_Code.url(recebido)
-            QR_Code.Show(img)
+    while True:
+        try:
+            choice = input(msg)
+            choice = int(choice)
 
-        if choice == 2: #WI-FI
-            data = Dados.Wifi()
-            recebido = data.EntradaDados()
-            img = QR_Code.url(recebido)
-            QR_Code.Show(img)
+            if choice == 0:
+                print(Messages.mFimExecucao())
+                break
 
-        if choice == 3: #WI-FI EXPORT
-            ExportWIFI().export_wifi()
+            elif choice == -1 or choice not in lista_valida:
+                fn.LimparConsole()
+                print("Opcao Invalida.")
+            
+            elif choice == 1: #URL
+                data = Dados.Url()
+                recebido = data.EntradaDados()
+                img = QR_Code.url(recebido)
+                QR_Code.Show(img)
 
-    except Exception as e:
-        print(Messages.mErroGenerico())
+            elif choice == 2: #WI-FI
+                data = Dados.Wifi()
+                recebido = data.EntradaDados()
+                img = QR_Code.url(recebido)
+                QR_Code.Show(img)
 
-        _m: str = f'Erro durante a execucao: {choice};\n excecao: {e}'
-        Logs.log_to_file(_m)
+            elif choice == 3: #WI-FI EXPORT
+                ExportWIFI().export_wifi()
+
+        except ValueError as e:
+            fn.LimparConsole()
+            print(f'\'{choice}\' nao e um valor valido')
+            
+        except Exception as e:
+            fn.LimparConsole()
+            print(Messages.mErroGenerico())
+
+            _m: str = f'Erro durante a execucao: {choice};\n excecao: {e}'
+            Logs.log_to_file(_m)
+
 
 if __name__ == '__main__':
     run()
