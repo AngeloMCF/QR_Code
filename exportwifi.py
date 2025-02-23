@@ -79,7 +79,7 @@ class ExportWIFI():
                 _data.update_url()
 
                 try:
-                    QR_Code.url(_data, False)
+                    QR_Code.Generate(_data, False, f'Rede: {_data.ssid} | Senha: {_data.key}')
                 except Exception as e:
                     m: str = f'Erro durante {ExportWIFI.create_qrcode_export_wifi.__name__}, erro: {e})'
                     Logs.log_to_file(m)
