@@ -14,6 +14,7 @@ class DefaultArquivo:
         self.fileExtension= fileExtension
         self.savepath= savepath
         self.composedPath = str(savepath + fileName + '.' + fileExtension)
+        self.text= url
 
     def tratar_dados_tupla(self) -> None:
 
@@ -54,6 +55,7 @@ class Dados:
         def __init__(self, url: str = '', fileName: str = 'QRCode-', fileExtension: str = 'png', savepath: str = './image/'):
             super().__init__( url, fileName, fileExtension, savepath )
             self.update_composedPath()
+            self.text= self.url
 
         def EntradaDados(self, userInput = True) :
             
@@ -65,6 +67,7 @@ class Dados:
                     self.change_file_name(self.fileName)
 
             self.update_composedPath()
+            self.text= self.url
 
             return self
 
@@ -82,6 +85,7 @@ class Dados:
             self.key = key
             self.type_s = type_s
             self.hidden = hidden
+            self.text = f'Rede: {self.ssid} | Senha: {self.key}'
 
             self.update_composedPath()
 
@@ -103,6 +107,7 @@ class Dados:
             self.tratar_dados_tupla_wifi()
             self.update_composedPath()
             self.url = f'WIFI:S:{self.ssid};T:{self.type_s};P:{self.key};H:{self.hidden.lower()};'
+            self.text = f'Rede: {self.ssid} | Senha: {self.key}'
 
         class TiposSeguranca(object):
             

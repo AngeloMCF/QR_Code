@@ -18,7 +18,7 @@
 
 import os
 import os.path
-from PIL import Image
+from PIL import Image, ImageDraw
 from xml.dom import minidom 
 
 from config import save_path
@@ -66,14 +66,14 @@ def run() -> None:
             elif choice == 1: #URL
                 data = Dados.Url()
                 recebido = data.EntradaDados()
-                img = QR_Code.url(recebido)
-                QR_Code.Show(img)
+                QR_Code.Generate(recebido)
+                QR_Code.Show(recebido)
 
             elif choice == 2: #WI-FI
                 data = Dados.Wifi()
                 recebido = data.EntradaDados()
-                img = QR_Code.url(recebido)
-                QR_Code.Show(img)
+                QR_Code.Generate(recebido, False)
+                QR_Code.Show(recebido)
 
             elif choice == 3: #WI-FI EXPORT
                 ExportWIFI().export_wifi()
