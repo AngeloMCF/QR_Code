@@ -71,9 +71,9 @@ class ExportWIFI():
                 password = xml.getElementsByTagName('keyMaterial')
 
                 _data: object = Dados.Wifi()
-                _data.ssid = str(ssid[0].firstChild.data),
-                _data.key = password[0].firstChild.data,
-                _data.type_s = security_type[0].firstChild.data.replace('PSK', ''),
+                _data.ssid = str(ssid[0].firstChild.data)
+                _data.key = password[0].firstChild.data
+                _data.type_s = security_type[0].firstChild.data.replace('PSK', '')
                 _data.fileName = _data.ssid
                 _data.update_composedPath()
                 _data.update_url()

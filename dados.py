@@ -4,11 +4,7 @@ from mensagens import Messages
 
 class DefaultArquivo:
     
-    def __init__(self, url:str, fileName: str , fileExtension: str, savepath: str ):
-        '''Por algum motivo as strings estao como tuplas olhar depois
-            Utilizando tratar_dados_tupla() para solução temporária
-        '''
-        
+    def __init__(self, url:str, fileName: str, fileExtension: str, savepath: str ):   
         self.url= url
         self.fileName= fileName
         self.fileExtension= fileExtension
@@ -16,16 +12,7 @@ class DefaultArquivo:
         self.composedPath = str(savepath + fileName + '.' + fileExtension)
         self.text= url
 
-    def tratar_dados_tupla(self) -> None:
-
-        if (type(self.fileName) == tuple):
-            self.fileName = self.fileName[0]
-
-        if (type(self.fileExtension) == tuple):
-            self.fileExtension = self.fileExtension[0]
-
     def update_composedPath(self) -> None:
-        self.tratar_dados_tupla()
         self.composedPath = str(self.savepath + self.fileName + '.' + self.fileExtension.replace('.', ''))
 
     def change_file_name(self, file_name: str, user_input = True) -> None:
@@ -89,22 +76,7 @@ class Dados:
 
             self.update_composedPath()
 
-        def tratar_dados_tupla_wifi(self) -> None:
-
-            if (type(self.ssid) == tuple):
-                self.ssid = self.ssid[0]
-
-            if (type(self.key) == tuple):
-                self.key = self.key[0]
-           
-            if (type(self.type_s) == tuple):
-                self.type_s = self.type_s[0]
-
-            if (type(self.hidden) == tuple):
-                self.hidden = self.hidden[0]
-
         def update_url(self) -> None:
-            self.tratar_dados_tupla_wifi()
             self.update_composedPath()
             self.url = f'WIFI:S:{self.ssid};T:{self.type_s};P:{self.key};H:{self.hidden.lower()};'
             self.text = f'Rede: {self.ssid} | Senha: {self.key}'
